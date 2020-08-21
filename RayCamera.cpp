@@ -6,17 +6,22 @@ tsr::RayCamera::RayCamera(int res_x, int res_y)
 	rotation = sf::Vector3f(0.f, 0.f, 0.0f);
 	position = sf::Vector3f(0.0f, 0.0f, 0.0f);
 	ray_array = new tsr::Ray[res_x * res_y];
+	mth::GeometricMath math;
+	//Updatera vectorerna OBS! detta kan vara långsammare än att räkna ut för varje ray
+	
 }
 
 void tsr::RayCamera::calculateRays()
 {
-	sf::Vector3f up, side, forward, plainDir;
 	mth::GeometricMath math;
-	forward = math.rotToVec(sf::Vector3f(rotation.x, rotation.y, 0));
-	side = math.normalize(math.crossProduct(sf::Vector3f(0.0f, 1.0f, 0.0f), forward));
-	up = math.normalize(math.crossProduct(forward, side));
+	sf::Vector3f forward = math.rotToVec(sf::Vector3f(rotation.x, rotation.y, 0));
+	sf::Vector3f side = math.normalize(math.crossProduct(sf::Vector3f(0.0f, 1.0f, 0.0f), forward));
+	sf::Vector3f up = math.normalize(math.crossProduct(forward, side));
+	//Uppdatera 
+	float aspectRatio = RESOLUTION.y / (float)RESOLUTION.x;
+	float halfResX = RESOLUTION.x / 2.0f;
+	float halfResY = RESOLUTION.y / 2.0f;
 
-	float aspectRatio = RESOLUTION.x / (float)RESOLUTION.y;
 	for (int y = 0; y < RESOLUTION.y; y++) {
 		float partY = (y - (RESOLUTION.y / 2.0f)) / (float)RESOLUTION.y;
 		partY *= 2.0f / aspectRatio;
@@ -35,14 +40,16 @@ void tsr::RayCamera::calculateRays()
 
 void tsr::RayCamera::calculateRaysSIMD() //Kan man SIMD:a den här kanske?
 {
-	sf::Vector3f up, side, forward, plainDir;
+	
 	mth::GeometricMath math;
-	forward = math.rotToVec(sf::Vector3f(rotation.x, rotation.y, 0));
-	side = math.normalize(math.crossProduct(sf::Vector3f(0.0f,1.0f,0.0f),forward));
-	up = math.normalize(math.crossProduct(forward, side));
+	sf::Vector3f forward = math.rotToVec(sf::Vector3f(rotation.x, rotation.y, 0));
+	sf::Vector3f side = math.normalize(math.crossProduct(sf::Vector3f(0.0f, 1.0f, 0.0f), forward));
+	sf::Vector3f up = math.normalize(math.crossProduct(forward, side));
+	//Uppdatera 
 	float aspectRatio = RESOLUTION.y / (float)RESOLUTION.x;
 	float halfResX = RESOLUTION.x / 2.0f;
 	float halfResY = RESOLUTION.y / 2.0f;
+	
 	float inverseResX = 1.0f / (float)RESOLUTION.x;
 	float inverseResY = 1.0f / (float)RESOLUTION.y;
 	for (int y = 0; y < RESOLUTION.y; y++) {
@@ -54,7 +61,7 @@ void tsr::RayCamera::calculateRaysSIMD() //Kan man SIMD:a den här kanske?
 			float partX = 2.0f * (x - halfResX) * inverseResX;
 			pixel3dPos -= side * partX;
 			pixel3dPos -= up * partY;
-			tsr::Ray tmp(position, math.normalize(pixel3dPos));
+			tsr::Ray tmp(position, math.normalize(pixel3dPos)); tmp.imgPos = (y*RESOLUTION.x + x); tmp.travelDist=0;
 			ray_array[y*RESOLUTION.x + x] = tmp;
 		}
 

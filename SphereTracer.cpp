@@ -51,6 +51,57 @@ float tsr::SphereTracer::tracePointLength(tsr::Ray ray)
 	return totalDist;
 }
 
+float tsr::SphereTracer::getClosestDist(tsr::Ray & ray)
+{
+	float closestObj = INFINITY;
+	for (int j = 0; j < objects.size(); j++) {
+		float dist = objects[j]->getDist(ray.pos);
+		closestObj = (dist < closestObj) ? dist : closestObj;
+	}
+	return closestObj;
+}
+
+void tsr::SphereTracer::renderCluster(std::vector<tsr::Ray>& rays, sf::Uint8 * pixels)
+{
+nextElement:
+	while (rays.size()>0) {
+		float dist = getClosestDist(rays[0]);
+		//ta bort ståle 0 som är nära nog
+		if (dist<0.01f || dist>100.0f) {
+			rays.erase(rays.begin());
+			goto nextElement;
+		}
+			
+		
+		for (int i = 1; i < rays.size(); i++) {
+			/*Matte från http://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection */
+			float r = dist;//
+			float a, b, c;
+			a = math.dotProduct(rays[i].dir, rays[i].dir);
+			b = 2.0f * math.dotProduct(rays[i].pos - rays[0].pos, rays[i].dir); // ska vara noll i början
+			c = math.dotProduct(rays[i].pos - rays[0].pos, rays[i].pos - rays[0].pos) - (r*r);//FEL HÄR TYP?
+			float disc = (b*b) - (4.0f*a*c); // discriminant 
+			bool isInside = ((b*b) < disc); //uträkning utan kvadratrot. om en t är negativ och en positiv så är den i sfären
+			if (disc <= 0.0f || !isInside) {
+				//outside of circle (calculate by itself)
+				float l = tracePointLength(rays[i]) + rays[i].travelDist;
+				bool hasHit = (l <= 100.0f);
+				for(int j = 0; j<3; j++)
+					pixels[rays[i].imgPos*4 + j] = hasHit ? 200 : 0;
+				pixels[rays[i].imgPos * 4 + 3] = 255;
+				rays.erase(rays.begin() + i); // remove ray since it is calculated
+			}
+			else {
+				//Hitta längden till kollition med sfären:
+				float t = (-b + math.fastSqr(disc))/(2.0f*a);
+				rays[i].pos += t * rays[i].dir; // flytta stålen till kollitionspunkten
+				rays[i].travelDist += t;
+			}
+			rays[0].pos += dist * rays[0].dir;
+		}
+	}
+}
+
 tsr::SphereTracer::SphereTracer(sf::Vector2i resolution)
 {
 	RESOLUTION = resolution;
@@ -78,4 +129,21 @@ sf::Uint8 * tsr::SphereTracer::renderFrame()
 	}
 	return pixels;
 }
+
+sf::Uint8 * tsr::SphereTracer::renderFrameOpt()
+{
+	sf::Uint8 *pixels = new sf::Uint8[RESOLUTION.x * RESOLUTION.y * 4]; //RGBA pixlar
+	int totalRays = RESOLUTION.x*RESOLUTION.y;
+	int clusterSize = 8;
+	std::vector<tsr::Ray> rayCluster;
+	int totalClusters = totalRays / clusterSize;
+	for (int clusterId = 0; clusterId < totalClusters; clusterId++) {
+		std::cout << "Rendering cluster: " << clusterId << std::endl; //Fastnar på kluster id = 1 av ngn anledning
+		for (int i = 0; i < clusterSize; i++)
+			rayCluster.push_back(ray_array[clusterId*clusterSize+i]); //Långsamt, gör snabbare på ngt sätt (passa inte som reference).
+		renderCluster(rayCluster, pixels);
+	}
+	return pixels;
+}
+
 

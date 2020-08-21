@@ -75,3 +75,17 @@ float mth::GeometricMath::inverseSqr(float input)
 		return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ps1(x)));
 	#endif
 }
+
+float mth::GeometricMath::fastSqr(float input)
+{
+	return inverseSqr(input)*input;
+}
+
+float mth::GeometricMath::dotProduct(sf::Vector3f vect_A, sf::Vector3f vect_B)
+{
+	float product = vect_A.x * vect_B.x;
+	product += vect_A.y * vect_B.y;
+	product += vect_A.z * vect_B.z;
+	return product;
+	
+}

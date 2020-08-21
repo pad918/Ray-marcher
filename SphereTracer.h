@@ -6,6 +6,7 @@
 #include "Ray.h"
 #include "GeometricMath.h"
 #include "WorldObject.h"
+#include "RayCamera.h"
 
 namespace tsr {
 	
@@ -21,10 +22,15 @@ namespace tsr {
 		std::vector<tsr::WorldObject *> objects;
 		int tracePoint(tsr::Ray ray);
 		float tracePointLength(tsr::Ray ray);
+		float getClosestDist(tsr::Ray &ray);
+		void renderCluster(std::vector<tsr::Ray> &rays, sf::Uint8 * pixels);
 		mth::GeometricMath math;
 	public:
 		SphereTracer(sf::Vector2i resolution);
+		//Olika renderingstekniker
 		sf::Uint8 *renderFrame();
+		sf::Uint8 *renderFrameOpt();
+		//Publika variabler 
 		tsr::Ray * ray_array;
 	};
 

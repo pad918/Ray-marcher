@@ -6,12 +6,9 @@
 #include <omp.h>
 
 int main() {
-	int RESOLUTION_X = 640; int RESOLUTION_Y = 360; // GLOBAL upplösnings variabel 640 360
+	int RESOLUTION_X = 160; int RESOLUTION_Y = 90; // GLOBAL upplösnings variabel 640 360
 	//TEST START
-	mth::GeometricMath math;
-	sf::Vector3f pointer = math.rotToVec(sf::Vector3f(1, 0.5f, 0));
-	sf::Vector3f pointer1 = math.rotToVec(sf::Vector3f(1 + 3.14159265358979f/2.0f, 0.0f, 0));
-	std::cout << " "  << std::endl;
+
 	// TEST END
 
 	sf::Texture pixelsTexture;
@@ -19,12 +16,14 @@ int main() {
 	sf::Sprite frameSprite;
 	tsr::SphereTracer ST(sf::Vector2i(RESOLUTION_X, RESOLUTION_Y));
 	tsr::RayCamera camera(RESOLUTION_X, RESOLUTION_Y);
+	/*
 	camera.calculateRaysSIMD();
 	ST.ray_array = camera.getRays();
 	pixelsTexture.update(ST.renderFrame());
+	*/
 	frameSprite.setTexture(pixelsTexture);
 	//knapphantering
-	bool buttonsDown[255];
+	bool buttonsDown[255]; // byt till memset
 	for (bool &btn : buttonsDown)
 		btn = false;
 	
@@ -33,6 +32,7 @@ int main() {
 	window.setKeyRepeatEnabled(false);
 	window.setMouseCursorVisible(false);
 	sf::Clock frameClock;
+	sf::Mouse::setPosition(sf::Vector2i(RESOLUTION_X / 2, RESOLUTION_Y / 2), window);
 	while (window.isOpen()) {
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -77,8 +77,6 @@ int main() {
 		window.display();
 		sf::Time elapsed1 = frameClock.getElapsedTime();
 		std::cout << "renderTime = " << elapsed1.asMilliseconds() << "ms" << std::endl; //325ms från början 160*90 px | 30ms för kameran att räkna rays
-		//std::cout << "cam pos, rot= " << camera.position.x << " " << camera.position.y << " " << camera.position.z <<
-		//	" | rotation = " << camera.rotation.x << " " << camera.rotation.y << std::endl;
 		frameClock.restart();
 		
 	}

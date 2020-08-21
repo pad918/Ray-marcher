@@ -17,6 +17,9 @@ namespace mth {
 		float distFast(sf::Vector3f point1, sf::Vector3f point2);
 		float distSqr(sf::Vector3f point1, sf::Vector3f point2);
 		float inverseSqr(float input);
+		float fastSqr(float input);
+		float dotProduct(sf::Vector3f vect_A, sf::Vector3f vect_B);
+		
 
 	};
 

@@ -15,6 +15,8 @@ namespace tsr {
 		Ray();
 		sf::Vector3f pos; // Strålens ursprungsposition
 		sf::Vector3f dir; // Enhetsvektor för strålens riktning
+		int imgPos;
+		float travelDist;
 	};
 
 }
