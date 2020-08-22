@@ -21,7 +21,10 @@ namespace tsr {
 		sf::Vector2i RESOLUTION;
 		std::vector<tsr::WorldObject *> objects;
 		int tracePoint(tsr::Ray ray);
+		//Olka metoder för att få avståndet till een pixel
 		float tracePointLength(tsr::Ray ray);
+		float tracePointLengthO1(tsr::Ray ray);
+
 		float getClosestDist(tsr::Ray &ray);
 		void renderCluster(std::vector<tsr::Ray> &rays, sf::Uint8 * pixels);
 		mth::GeometricMath math;

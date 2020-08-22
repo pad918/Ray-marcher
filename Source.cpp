@@ -6,7 +6,7 @@
 #include <omp.h>
 
 int main() {
-	int RESOLUTION_X = 160; int RESOLUTION_Y = 90; // GLOBAL upplösnings variabel 640 360
+	int RESOLUTION_X = 640; int RESOLUTION_Y = 360; // GLOBAL upplösnings variabel 640 360
 	//TEST START
 
 	// TEST END
@@ -68,7 +68,7 @@ int main() {
 		camera.updatePos(buttonsDown);
 		camera.calculateRaysSIMD();
 		ST.ray_array = camera.getRays();
-		sf::Uint8 * pixels = ST.renderFrame();
+		sf::Uint8 * pixels = ST.renderFrameOpt();
 		pixelsTexture.update(pixels); delete(pixels);
 		frameSprite.setTexture(pixelsTexture);
 		//Rita
